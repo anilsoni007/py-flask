@@ -1,2 +1,5 @@
 Flask
+requests
+werkzeug==2.2.3
+psutil
 
