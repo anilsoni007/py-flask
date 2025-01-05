@@ -29,3 +29,12 @@ http://127.0.0.1:5000/
 Watch the pandas rolling across the screen! 🐼
 
 app health status can be checked on /health context
+
+# Run the app on container
+```
+docker pull asoni007/panda-flask:v1
+```
+
+```
+docker container run --name flaskapp -itd -p 5000:5000 asoni007/panda-flask:v1
+```
