@@ -7,16 +7,13 @@ import psutil  # To check memory usage
 app = Flask(__name__)
 
 def get_node_info():
-    # Check if the app is running in Kubernetes
     if os.path.exists('/var/run/secrets/kubernetes.io/serviceaccount'):
-        # Running in Kubernetes pod
         try:
             pod_name = open('/etc/hostname').read().strip()  # Get the pod name
             return f"Pod Name: {pod_name}"
         except Exception as e:
             return f"Error fetching pod info: {str(e)}"
     
-    # Check if the app is running on EC2 instance
     try:
         metadata_url = "http://169.254.169.254/latest/meta-data/public-ipv4"
         response = requests.get(metadata_url, timeout=2)
@@ -25,12 +22,11 @@ def get_node_info():
     except requests.exceptions.RequestException:
         pass
     
-    # If not in Kubernetes or EC2, return the local machine hostname
     return f"Local Machine: {socket.gethostname()}"
 
 def check_memory_usage():
-    memory = psutil.virtual_memory()  # Get memory info
-    used_memory_percentage = memory.percent  # Get the percentage of memory used
+    memory = psutil.virtual_memory()  
+    used_memory_percentage = memory.percent  
     return used_memory_percentage
 
 @app.route('/')
@@ -141,7 +137,7 @@ def health_check():
     # Check if the app is working fine
     memory_usage = check_memory_usage()
     if memory_usage > 80:
-        return "Health Status: Unhealthy\nMemory usage: {}%".format(memory_usage), 500  # Return unhealthy if memory exceeds 30%
+        return "Health Status: Unhealthy\nMemory usage: {}%".format(memory_usage), 500  # Return unhealthy if memory exceeds 80%
     return "Health Status: Healthy\nMemory usage: {}%".format(memory_usage), 200
 
 if __name__ == '__main__':
