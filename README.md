@@ -20,6 +20,6 @@ python testapp.py
 
 Open your browser and navigate to:
 
-arduino Copy code http://127.0.0.1:5000/ Enjoy the pandas:
+http://127.0.0.1:5000/
 
 Watch the pandas rolling across the screen! 🐼
