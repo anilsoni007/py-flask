@@ -5,7 +5,7 @@ Features 🐼 Rolling Pandas Animation: Panda emojis roll across the screen with
 
 Python 3.7 or later Flask (can be installed using pip) Installation Clone the repository:
 
-Copy code git clone https://github.com/anilsoni007/py-flask.git cd rolling-panda-app 
+Copy code git clone https://github.com/anilsoni007/py-flask.git
 
 Install dependencies:
 ```
