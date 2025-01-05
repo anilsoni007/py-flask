@@ -34,6 +34,7 @@ app health status can be checked on /health context
 ```
 docker pull asoni007/panda-flask:v1
 ```
-docker container run --name flaskapp -itd -p 5000:5000 asoni007/panda-flask:v1
+
 ```
+docker container run --name flaskapp -itd -p 5000:5000 asoni007/panda-flask:v1
 ```
