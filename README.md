@@ -1,5 +1,5 @@
-Flask Rolling Panda App
-🐼 A fun Python Flask web application with pandas rolling across the screen, designed for learning and entertainment!
+#Flask Rolling Panda App
+#🐼 A fun Python Flask web application with pandas rolling across the screen, designed for learning and entertainment!
 
 Features
 🐼 Rolling Pandas Animation: Panda emojis roll across the screen with random starting positions and movement.
