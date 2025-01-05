@@ -27,3 +27,5 @@ Open your browser and navigate to:
 http://127.0.0.1:5000/
 
 Watch the pandas rolling across the screen! 🐼
+
+app health status can be checked on /health context
