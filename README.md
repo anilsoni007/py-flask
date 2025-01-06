@@ -19,7 +19,7 @@ pip install -r requirements.txt
 Run the following command to run the Flask:
 
 ```
-python testapp.py
+python panda_app.py
 ```
 
 Open your browser and navigate to:
@@ -30,6 +30,13 @@ Watch the pandas rolling across the screen! 🐼
 
 app health status can be checked on /health context
 
+# Run unit_test 
+
+```
+python -m unittest panda_test_app.py
+
+```
+
 # Run the app on container
 ```
 docker pull asoni007/panda-flask:v1
@@ -38,3 +45,4 @@ docker pull asoni007/panda-flask:v1
 ```
 docker container run --name flaskapp -itd -p 5000:5000 asoni007/panda-flask:v1
 ```
+
