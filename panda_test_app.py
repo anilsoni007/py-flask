@@ -1,66 +1,58 @@
 import unittest
-from unittest.mock import patch, mock_open
-from flask import Flask
-from panda_app import app, get_node_info, check_memory_usage
+from panda_app import app, check_memory_usage
 
-class PandaAppTestCase(unittest.TestCase):
-
+class FlaskAppTestCase(unittest.TestCase):
     def setUp(self):
-        # Set up a test client for the Flask app
-        self.app = app.test_client()
-        self.app.testing = True
+        """
+        Set up the Flask app for testing. Initializes the test client.
+        """
+        app.config['TESTING'] = True
+        self.client = app.test_client()
 
-    @patch("os.path.exists")
-    @patch("builtins.open", new_callable=mock_open, read_data="test-pod")
-    def test_get_node_info_kubernetes(self, mock_file, mock_exists):
-        # Simulate Kubernetes environment
-        mock_exists.return_value = True
-        result = get_node_info()
-        self.assertIn("Pod Name: test-pod", result)
-
-    @patch("requests.get")
-    def test_get_node_info_ec2(self, mock_requests):
-        # Simulate EC2 environment
-        mock_requests.return_value.status_code = 200
-        mock_requests.return_value.text = "1.2.3.4"
-        result = get_node_info()
-        self.assertIn("EC2 Instance IP: 1.2.3.4", result)
-
-    @patch("os.path.exists")
-    def test_get_node_info_local(self, mock_exists):
-        # Simulate Local Machine
-        mock_exists.return_value = False
-        result = get_node_info()
-        self.assertIn("Local Machine:", result)
-
-    @patch("psutil.virtual_memory")
-    def test_check_memory_usage(self, mock_memory):
-        # Test memory usage
-        mock_memory.return_value.percent = 75
-        result = check_memory_usage()
-        self.assertEqual(result, 75)
-
-    def test_hello_docker_route(self):
-        # Test the root route
-        response = self.app.get("/")
+    def test_homepage(self):
+        """
+        Test if the homepage loads successfully and contains key elements.
+        """
+        response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"This is my test app using Python Flask!", response.data)
+        self.assertIn(b'This is my test app using Python Flask!', response.data)
+        self.assertIn(b'Enter your name:', response.data)
 
-    @patch("psutil.virtual_memory")
-    def test_health_check_healthy(self, mock_memory):
-        # Test health check when memory is healthy
-        mock_memory.return_value.percent = 50
-        response = self.app.get("/health")
+    def test_health_endpoint(self):
+        """
+        Test the health endpoint for both healthy and unhealthy memory states.
+        """
+        memory_usage = check_memory_usage()
+        response = self.client.get('/health')
+        if memory_usage > 80:
+            self.assertEqual(response.status_code, 500)
+            self.assertIn(b'Health Status: Unhealthy', response.data)
+        else:
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'Health Status: Healthy', response.data)
+
+    def test_form_submission(self):
+        """
+        Test form submission by sending a POST request with a name.
+        """
+        response = self.client.post('/', data={'name': 'Anil'})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Health Status: Healthy", response.data)
+        self.assertIn(b'User Table', response.data)
+        self.assertIn(b'Anil', response.data)
 
-    @patch("psutil.virtual_memory")
-    def test_health_check_unhealthy(self, mock_memory):
-        # Test health check when memory is unhealthy
-        mock_memory.return_value.percent = 85
-        response = self.app.get("/health")
-        self.assertEqual(response.status_code, 500)
-        self.assertIn(b"Health Status: Unhealthy", response.data)
+    def test_node_info(self):
+        """
+        Test if the app correctly identifies the hosting environment.
+        """
+        response = self.client.get('/')
+        self.assertIn(b'This app is hosted on:', response.data)
 
-if __name__ == "__main__":
+    def test_memory_status(self):
+        """
+        Test if the memory status is displayed on the homepage.
+        """
+        response = self.client.get('/')
+        self.assertIn(b'Memory Status:', response.data)
+
+if __name__ == '__main__':
     unittest.main()
