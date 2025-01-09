@@ -6,6 +6,7 @@ on:
           description: unit test run for the app
           type: boolean
           required: false
+          default: false
         unit-test-file:
           description: unit test file name'
           type: string
@@ -25,5 +26,14 @@ jobs:
       - name: run unit test
         if: ${{ inputs.run-unit-test == true }}
         run: python -m unittest ${{ inputs.unit-test-file }}
+      - name: coverage report
+        uses: orgoro/coverage@v3.2
+        with:
+          coverageFile: coverage.xml
+      - name: upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage.xml
+          path: coverage.xml
       
   
