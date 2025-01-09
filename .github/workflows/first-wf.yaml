@@ -33,24 +33,10 @@ jobs:
           coverage run -m unittest panda_test.py
           coverage report
           coverage html
-      # - name: upload report
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: coverage-report
-      #     path: htmlcov/
-      - name: Upload coverage to Pages
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: htmlcov/
-      - name: Generate coverage badge
-        run: |
-          pip install pytest pytest-cov coverage-badge
-          pytest --cov=my_package tests/
-          coverage-badge -o coverage.svg
-      - name: Upload coverage badge
+      - name: upload report
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-badge
-          path: coverage.svg
+          name: coverage-report
+          path: htmlcov/
       
   
