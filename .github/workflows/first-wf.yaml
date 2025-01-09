@@ -15,7 +15,7 @@ on:
       branches: 
         - main
 env:
-  DOCKER_REGISTRY: asoni007/${{ github.repository }} 
+  DOCKER_REGISTRY: asoni007/${{ github.repository.name }} 
 jobs:
   checkout-code:
     runs-on: ubuntu-latest
@@ -53,7 +53,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PWD }}
 
       - name: build docker image
-        run: docker build -t ${{ env.DOCKER_REGISTRY }}:${{ github.sha }}
+        run: docker build -t ${{ env.DOCKER_REGISTRY }}:${{ github.sha }} .
 
       
       
