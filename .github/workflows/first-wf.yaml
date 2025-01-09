@@ -1,11 +1,29 @@
 name: build docker image
-
 on:
     workflow_dispatch: 
-    
+      inputs:
+        run-unit-test:
+          description: unit test run for the app
+          type: boolean
+          required: false
+        unit-test-file:
+          description: unit test file name'
+          type: string
+          required: true
+
+    push:
+      branches: 
+        - main   
 jobs:
-    build-docker:
-        runs-on: ubuntu-latest
-        steps:
-          - name: hello work testing
-            run: echo "hello work!!"
+  checkout-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout action
+        uses: actions/checkout@v4
+      - name: install dependencies
+        run: pip install -r requirements.txt
+      - name: run unit test
+        if: ${{ inputs.run-unit-test == true }}
+        run: python -m unittest ${{ inputs.unit-test-file }}
+      
+  
