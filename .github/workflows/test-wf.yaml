@@ -1,6 +1,9 @@
 name: Deploy
 
 on:
+  push:
+      branches: 
+        - sandbox
   workflow_run: 
     workflows: [python-panda-app]
     types:
