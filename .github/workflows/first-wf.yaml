@@ -7,10 +7,6 @@ on:
           type: boolean
           required: false
           default: false
-        unit-test-file:
-          description: unit test file name'
-          type: string
-          required: true
     push:
       branches: 
         - main
@@ -28,13 +24,15 @@ jobs:
          pip install coverage
       - name: run unit test
         if: ${{ inputs.run-unit-test == true }}
-        run: python -m unittest ${{ inputs.unit-test-file }}
+        run: python -m unittest panda_test.py
       - name: Run tests with coverage
+        if: success()
         run: |
           coverage run -m unittest panda_test.py
           coverage report
           coverage html
       - name: upload report
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
