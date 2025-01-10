@@ -21,7 +21,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: ${{ secrets.AWS_SANDBOX_ROLE }}
+          role-to-assume: ${{ secrets.AWS_MANAG_ROLE }}
           aws-region: ap-south-1
 
       - name: test s3 command
