@@ -1,10 +1,14 @@
 name: Deploy
 
 on:
-  workflow_dispatch: 
+  workflow_run: 
+    workflows: [python-panda-app]
+    types:
+      - completed
 
 jobs:
   deploy:
+    
     runs-on: ubuntu-latest
 
     permissions:
