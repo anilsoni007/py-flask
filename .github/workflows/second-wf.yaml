@@ -9,15 +9,11 @@ on:
       - completed
 env:
   ENV_NAME: ${{ github.ref == 'refs/heads/sandbox' && 'sandbox' || 'staging' }}
-  REG: ${{ vars.ECR_REG }}
-
   
 jobs:
   Push-to-ECR:
-    outputs:
-      IMAGE: ${{ steps.image_capture.outputs.IMAGE_NAME }}
     environment:
-      name: sandbox
+      name: sandbox # need to mention environment name for fetching env specific variables
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -33,7 +29,6 @@ jobs:
           aws-region: ap-south-1
 
       - name: image capture
-        id: image_capture
         run: |
          IMAGE_NAME="${{ vars.ECR_REG }}/${{ env.ENV_NAME }}/sbx-artifactory:${{ github.sha }}"
          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_OUTPUT
@@ -49,7 +44,7 @@ jobs:
   Deploying-to-instance:
     runs-on: ubuntu-latest
     environment: 
-      name: sandbox
+      name: sandbox  # need to mention environment name for fetching env specific variables
     permissions:
       id-token: write
       contents: read
