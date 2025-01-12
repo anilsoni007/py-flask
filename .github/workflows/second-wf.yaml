@@ -1,5 +1,4 @@
-name: Test AWS Role
-
+name: Deploy to Sandbox Instance
 on:
   push:
       branches: 
@@ -8,7 +7,7 @@ on:
     workflows: [python-panda-app]
     types:
       - completed
-
+  
 jobs:
   deploy-to-sandbox:
     runs-on: ubuntu-latest
@@ -25,5 +24,10 @@ jobs:
           role-to-assume: ${{ secrets.AWS_SANDBOX_ROLE }}
           aws-region: ap-south-1
 
-      - name: test s3 command
-        run: aws s3 ls s3://max-pcf-infra-sandbox-bucket001
+      - name: build docker image
+        run: docker build -t ${{ env.ECR_REG }}:${{ github.sha }} .
+
+      - name: push to ECR
+        run: docker push ${{ env.ECR_REG }}:${{ github.sha }} 
+
+      

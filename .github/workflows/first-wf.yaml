@@ -7,9 +7,9 @@ on:
           type: boolean
           required: false
           default: false
-    push:
-      branches: 
-        - main
+    # push:
+    #   branches: 
+    #     - sandbox
 env:
   DOCKER_REGISTRY: asoni007/py-flask
 jobs:
@@ -37,24 +37,25 @@ jobs:
         with:
           name: coverage-report
           path: htmlcov/
-  docker:
-    needs: checkout-code
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkin to repo
-        uses: actions/checkout@v4
+          
+  # docker:
+  #   needs: checkout-code
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: checkin to repo
+  #       uses: actions/checkout@v4
 
-      - name: login to docker_hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PWD }}
+  #     - name: login to docker_hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ vars.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_PWD }}
 
-      - name: build docker image
-        run: docker build -t ${{ env.DOCKER_REGISTRY }}:${{ github.sha }} .
+  #     - name: build docker image
+  #       run: docker build -t ${{ env.DOCKER_REGISTRY }}:${{ github.sha }} .
 
-      - name: push docker image
-        run: docker push ${{ env.DOCKER_REGISTRY }}:${{ github.sha }}
+  #     - name: push docker image
+  #       run: docker push ${{ env.DOCKER_REGISTRY }}:${{ github.sha }}
       
       
 
