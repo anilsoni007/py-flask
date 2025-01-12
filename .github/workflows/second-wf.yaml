@@ -1,8 +1,8 @@
 name: Push Image to ECR
 on:
-  push:
-      branches: 
-        - sandbox
+  # push:
+  #     branches: 
+  #       - sandbox
   workflow_run: 
     workflows: [python-panda-app]
     types:
@@ -75,7 +75,8 @@ jobs:
           script: |
             echo "deploying latest ECR image"
             aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${{ vars.ECR_REG }}
-            docker container run --name mycontainer -itd -p 5000:5000 ${{ vars.ECR_REG }}/${{ env.ENV_NAME }}/sbx-artifactory:${{ github.sha }}
+            docker container rm -f $(docker container ls -aq)
+            docker container run --name ${{ github.sha }} -itd -p 5000:5000 ${{ vars.ECR_REG }}/${{ env.ENV_NAME }}/sbx-artifactory:${{ github.sha }}
             
       
    

@@ -7,9 +7,9 @@ on:
           type: boolean
           required: false
           default: false
-    # push:
-    #   branches: 
-    #     - sandbox
+    push:
+      branches: 
+        - sandbox
 env:
   DOCKER_REGISTRY: asoni007/py-flask
 jobs:
