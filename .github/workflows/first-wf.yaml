@@ -1,61 +1,61 @@
-name: python-panda-app
-on:
-    workflow_dispatch: 
-      inputs:
-        run-unit-test:
-          description: unit test run for the app
-          type: boolean
-          required: false
-          default: false
-    # push:
-    #   branches: 
-    #     - sandbox
-env:
-  DOCKER_REGISTRY: asoni007/py-flask
-jobs:
-  checkout-code:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout action
-        uses: actions/checkout@v4
-      - name: install dependencies
-        run: |
-         pip install -r requirements.txt
-         pip install coverage
-      - name: run unit test
-        if: ${{ inputs.run-unit-test == true }}
-        run: python -m unittest panda_test.py
-      - name: Run tests with coverage
-        if: success()
-        run: |
-          coverage run -m unittest panda_test.py
-          coverage report
-          coverage html
-      - name: upload report
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: htmlcov/
+# name: python-panda-app
+# on:
+#     workflow_dispatch: 
+#       inputs:
+#         run-unit-test:
+#           description: unit test run for the app
+#           type: boolean
+#           required: false
+#           default: false
+#     # push:
+#     #   branches: 
+#     #     - sandbox
+# env:
+#   DOCKER_REGISTRY: asoni007/py-flask
+# jobs:
+#   checkout-code:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: checkout action
+#         uses: actions/checkout@v4
+#       - name: install dependencies
+#         run: |
+#          pip install -r requirements.txt
+#          pip install coverage
+#       - name: run unit test
+#         if: ${{ inputs.run-unit-test == true }}
+#         run: python -m unittest panda_test.py
+#       - name: Run tests with coverage
+#         if: success()
+#         run: |
+#           coverage run -m unittest panda_test.py
+#           coverage report
+#           coverage html
+#       - name: upload report
+#         if: success()
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: coverage-report
+#           path: htmlcov/
           
-  # docker:
-  #   needs: checkout-code
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: checkin to repo
-  #       uses: actions/checkout@v4
+#   # docker:
+#   #   needs: checkout-code
+#   #   runs-on: ubuntu-latest
+#   #   steps:
+#   #     - name: checkin to repo
+#   #       uses: actions/checkout@v4
 
-  #     - name: login to docker_hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ vars.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_PWD }}
+#   #     - name: login to docker_hub
+#   #       uses: docker/login-action@v3
+#   #       with:
+#   #         username: ${{ vars.DOCKERHUB_USERNAME }}
+#   #         password: ${{ secrets.DOCKERHUB_PWD }}
 
-  #     - name: build docker image
-  #       run: docker build -t ${{ env.DOCKER_REGISTRY }}:${{ github.sha }} .
+#   #     - name: build docker image
+#   #       run: docker build -t ${{ env.DOCKER_REGISTRY }}:${{ github.sha }} .
 
-  #     - name: push docker image
-  #       run: docker push ${{ env.DOCKER_REGISTRY }}:${{ github.sha }}
+#   #     - name: push docker image
+#   #       run: docker push ${{ env.DOCKER_REGISTRY }}:${{ github.sha }}
       
       
 

@@ -47,15 +47,21 @@ jobs:
   
   Deploying-to-instance:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
     needs: [Push-to-ECR]
     steps:
       - name: checkout repo
         uses: actions/checkout@v4
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
           role-to-assume: ${{ secrets.AWS_SANDBOX_ROLE }}
           aws-region: ap-south-1
+
       - name: Get public ip
         run: |
           echo "PUBLIC_IP=aws ec2 describe-instances --filters "Name=tag:Name,Values=Sandbox-Instance" --query "Reservations[*].Instances[*].PublicIpAddress" --output text" >> $GITHUB_ENV
