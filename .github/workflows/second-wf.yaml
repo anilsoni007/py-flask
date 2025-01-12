@@ -1,4 +1,4 @@
-name: Deploy to Sandbox Instance
+name: Push Image to ECR
 on:
   push:
       branches: 
@@ -12,7 +12,9 @@ env:
 
   
 jobs:
-  deploy-to-sandbox:
+  Push-to-ECR:
+    outputs:
+      IMAGE: ${{ steps.image_capture.outputs.IMAGE_NAME }}
     environment:
       name: sandbox
     runs-on: ubuntu-latest
@@ -29,6 +31,12 @@ jobs:
           role-to-assume: ${{ secrets.AWS_SANDBOX_ROLE }}
           aws-region: ap-south-1
 
+      - name: image capture
+        id: image_capture
+        run: |
+         IMAGE_NAME="${{ vars.ECR_REG }}/${{ env.ENV_NAME }}/sbx-artifactory:${{ github.sha }}"
+         echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_OUTPUT
+
       - name: build docker image
         run: docker build -t ${{ vars.ECR_REG }}/${{ env.ENV_NAME }}/sbx-artifactory:${{ github.sha }} .
 
@@ -36,6 +44,37 @@ jobs:
         run: |
           aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${{ vars.ECR_REG }}
           docker push ${{ vars.ECR_REG }}/${{ env.ENV_NAME }}/sbx-artifactory:${{ github.sha }}
+  
+  Deploying-to-instance:
+    runs-on: ubuntu-latest
+    needs: [Push-to-ECR]
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ secrets.AWS_SANDBOX_ROLE }}
+          aws-region: ap-south-1
+      - name: Get public ip
+        run: |
+          echo "PUBLIC_IP=aws ec2 describe-instances --filters "Name=tag:Name,Values=Sandbox-Instance" --query "Reservations[*].Instances[*].PublicIpAddress" --output text" >> $GITHUB_ENV
+          echo "PUBLIC_IP=$PUBLIC_IP"
+      - name: ssh action
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ env.PUBLIC_IP }}
+          username: ec2-user
+          key: ${{ secrets.KEY }}
+          port: 22
+          script: |
+            echo "deploying latest ECR image"
+            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${{ vars.ECR_REG }}
+            docker container run --name ${{ github.build }} -itd -p 5000:5000 ${{ vars.ECR_REG }}/${{ env.ENV_NAME }}/sbx-artifactory:${{ github.sha }}
+      
+   
+      
+              
 
 
 
