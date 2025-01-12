@@ -27,9 +27,9 @@ jobs:
           aws-region: ap-south-1
 
       - name: build docker image
-        run: docker build -t ${{ env.ECR_REG }}:${{ github.sha }} .
+        run: docker build -t ${{ vars.ECR_REG }}:${{ github.sha }} .
 
       - name: push to ECR
-        run: docker push ${{ env.ECR_REG }}:${{ github.sha }} 
+        run: docker push ${{ vars.ECR_REG }}:${{ github.sha }} 
 
       
