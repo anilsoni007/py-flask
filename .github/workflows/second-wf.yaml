@@ -34,6 +34,7 @@ jobs:
 
       - name: push to ECR
         run: |
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${{ vars.ECR_REG }}
           docker push ${{ vars.ECR_REG }}/${{ env.ENV_NAME }}/sbx-artifactory:${{ github.sha }}
 
 
