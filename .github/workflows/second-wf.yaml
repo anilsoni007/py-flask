@@ -1,8 +1,8 @@
 name: Push Image to ECR
 on:
-  # push:
-  #     branches: 
-  #       - sandbox
+  push:
+      branches: 
+        - sandbox
   workflow_run: 
     workflows: [python-panda-app]
     types:
