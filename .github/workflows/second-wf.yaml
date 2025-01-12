@@ -9,6 +9,7 @@ on:
       - completed
 env:
   ENV_NAME: ${{ github.ref == 'refs/heads/sandbox' && 'sandbox' || 'staging' }}
+  REG: ${{ vars.ECR_REG }}
 
   
 jobs:
