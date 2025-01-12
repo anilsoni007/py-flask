@@ -7,6 +7,9 @@ on:
     workflows: [python-panda-app]
     types:
       - completed
+env:
+  ENV_NAME: ${{ github.ref == 'refs/heads/sandbox' && 'sandbox' || 'staging' }}
+
   
 jobs:
   deploy-to-sandbox:
@@ -27,9 +30,12 @@ jobs:
           aws-region: ap-south-1
 
       - name: build docker image
-        run: docker build -t ${{ vars.ECR_REG }}:${{ github.sha }} .
+        run: docker build -t ${{ vars.ECR_REG }}/${{ env.ENV_NAME }}/sbx-artifactory:${{ github.sha }} .
 
       - name: push to ECR
-        run: docker push ${{ vars.ECR_REG }}:${{ github.sha }} 
+        run: |
+          docker push ${{ vars.ECR_REG }}/${{ env.ENV_NAME }}/sbx-artifactory:${{ github.sha }}
+
+
 
       
