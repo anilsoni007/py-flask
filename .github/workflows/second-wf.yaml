@@ -70,7 +70,7 @@ jobs:
       - name: ssh action
         uses: appleboy/ssh-action@v1.2.0
         env:
-          REG: ${{ vars.ECR_REG}}
+          REG: ${{ vars.ECR_REG }}
         with:
           host: ${{ env.PUBLIC_IP }}
           username: ec2-user
