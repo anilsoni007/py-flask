@@ -3,11 +3,34 @@ import socket
 import requests
 import os
 import psutil
+import mysql.connector
+from mysql.connector import Error
 
 app = Flask(__name__)
 
-# Global list to store user data
+# Global list to store user data and requests history
 user_data = []
+
+# Function to get MySQL connection
+def get_db_connection():
+    db_host = os.getenv('DB_HOST')
+    db_name = os.getenv('DB_NAME')
+    db_user = os.getenv('DB_USER')
+    db_password = os.getenv('DB_PASSWORD')
+
+    if db_host and db_name and db_user and db_password:
+        try:
+            connection = mysql.connector.connect(
+                host=db_host,
+                database=db_name,
+                user=db_user,
+                password=db_password
+            )
+            if connection.is_connected():
+                return connection
+        except Error as e:
+            print(f"Error while connecting to MySQL: {e}")
+    return None
 
 def get_node_info():
     if os.path.exists('/var/run/secrets/kubernetes.io/serviceaccount'):
@@ -47,12 +70,31 @@ def hello_docker():
     memory_status = "Healthy" if memory_usage <= 80 else "Unhealthy"
 
     global user_data
+    num_pandas = 0
+
+    db_connection = get_db_connection()
+    if db_connection:
+        cursor = db_connection.cursor(dictionary=True)
+        cursor.execute("CREATE TABLE IF NOT EXISTS user_data (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), pandas INT)")
+        cursor.execute("SELECT * FROM user_data")
+        user_data = cursor.fetchall()
+        cursor.close()
+        db_connection.close()
 
     if request.method == 'POST':
         user_name = request.form.get('name', '').strip()
+        num_pandas = int(request.form.get('pandas', 0))
+
         if user_name:
-            # Add new user to the user_data list
-            user_data.append({"serial": len(user_data) + 1, "name": user_name})
+            # Add new request to user_data list
+            user_data.append({"serial": len(user_data) + 1, "name": user_name, "pandas": num_pandas})
+
+            if db_connection:
+                cursor = db_connection.cursor()
+                cursor.execute("INSERT INTO user_data (name, pandas) VALUES (%s, %s)", (user_name, num_pandas))
+                db_connection.commit()
+                cursor.close()
+                db_connection.close()
 
     return render_template_string('''
     <!DOCTYPE html>
@@ -126,26 +168,31 @@ def hello_docker():
             <form method="POST">
                 <label for="name">Enter your name:</label>
                 <input type="text" id="name" name="name" required>
+                <label for="pandas">Number of pandas:</label>
+                <input type="number" id="pandas" name="pandas" min="0" required>
                 <button type="submit">Submit</button>
             </form>
             {% if user_data %}
-                <h2>User Table</h2>
+                <h2>User Request History</h2>
                 <table>
                     <tr>
                         <th>Serial No</th>
                         <th>Name</th>
+                        <th>Number of Pandas</th>
                     </tr>
                     {% for row in user_data %}
                     <tr>
                         <td>{{ row.serial }}</td>
                         <td>{{ row.name }}</td>
+                        <td>{{ row.pandas }}</td>
                     </tr>
                     {% endfor %}
                 </table>
             {% endif %}
         </div>
         <script>
-            for (let i = 0; i < 30; i++) {
+            const numPandas = {{ num_pandas }};
+            for (let i = 0; i < numPandas; i++) {
                 const panda = document.createElement('div');
                 panda.className = 'panda';
                 panda.textContent = '🐼';
@@ -159,7 +206,7 @@ def hello_docker():
     </body>
     </html>
     ''', node_info=node_info, hosting_resource=hosting_resource, memory_status=memory_status,
-       memory_usage=memory_usage, user_data=user_data)
+       memory_usage=memory_usage, user_data=user_data, num_pandas=num_pandas)
 
 @app.route('/health')
 def health_check():
